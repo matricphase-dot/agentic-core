@@ -178,11 +178,21 @@ export default function MarketingDashboard() {
     const totalClicks = analytics ? Object.values(analytics.clicksByPlatform).reduce((a, b) => a + b, 0) : 0;
 
     return (
-        <div>
+        <div className={styles.container}>
             {/* Header Content */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Traffic & Marketing Engine</h1>
-                <p className="text-gray-500 mt-1">Manage your automated content strategy for Resonate.</p>
+            <div className="mb-12 flex justify-between items-end animate-in fade-in slide-in-from-top-4 duration-700">
+                <div>
+                    <div className="inline-block px-3 py-1 bg-indigo-100/50 border border-indigo-200 text-indigo-700 text-[9px] font-black uppercase tracking-[0.3em] rounded-full mb-3">
+                        Infrastructure Layer 04
+                    </div>
+                    <h1 className="text-5xl font-black text-slate-900 tracking-tight">Traffic & Marketing Engine</h1>
+                    <p className="text-slate-400 mt-2 font-medium text-lg uppercase tracking-wider">Automated Content Strategy • High-Availability Production Cluster</p>
+                </div>
+                <div className="flex gap-4 pb-2">
+                    <a href="/admin/details" className={`${styles.btn} ${styles.btnSecondary} !rounded-full !px-6`}>
+                        <User size={16} /> Admin Identity
+                    </a>
+                </div>
             </div>
 
             {/* Stats Overview */}
@@ -217,31 +227,30 @@ export default function MarketingDashboard() {
             </div>
 
             {/* Tabs */}
-            <div className={styles.tabsContainer}>
+            <div className={styles.tabsContainer + " animate-in zoom-in-95 duration-500 delay-150"}>
                 <div className={styles.tabList}>
                     <button onClick={() => setActiveTab("posts")} className={`${styles.tab} ${activeTab === "posts" ? styles.activeTab : ""}`}>
-                        Posts & Generation
+                        Drafts & Live
                     </button>
                     <button onClick={() => setActiveTab("settings")} className={`${styles.tab} ${activeTab === "settings" ? styles.activeTab : ""}`}>
-                        Settings & Configuration
+                        Config & Webhooks
                     </button>
                     <button onClick={() => setActiveTab("analytics")} className={`${styles.tab} ${activeTab === "analytics" ? styles.activeTab : ""}`}>
-                        Analytics
+                        Global Analytics
                     </button>
                     <button onClick={() => setActiveTab("blog")} className={`${styles.tab} ${activeTab === "blog" ? styles.activeTab : ""}`}>
-                        Blog Content
+                        CMS Articles
                     </button>
                 </div>
             </div>
 
             {/* Main Content */}
-
             {activeTab === "settings" && (
-                <div className={styles.card}>
+                <div className={styles.card + " animate-in fade-in slide-in-from-bottom-8 duration-700"}>
                     <div className={styles.settingsGrid}>
                         {/* Left Col: Product Info */}
                         <div>
-                            <h3 className={styles.sectionTitle}>Product Information</h3>
+                            <h3 className={styles.sectionTitle}><Globe size={24} className="text-blue-500" /> Product Strategy</h3>
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Product Name</label>
                                 <input className={styles.input} value={settings.productName} onChange={(e) => setSettings({ ...settings, productName: e.target.value })} />
@@ -262,7 +271,7 @@ export default function MarketingDashboard() {
 
                         {/* Right Col: Config */}
                         <div>
-                            <h3 className={styles.sectionTitle}>Configuration</h3>
+                            <h3 className={styles.sectionTitle}><Monitor size={24} className="text-emerald-500" /> Network Configuration</h3>
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Primary Website URL</label>
                                 <input type="url" className={styles.input} value={settings.primaryWebsiteUrl} onChange={(e) => setSettings({ ...settings, primaryWebsiteUrl: e.target.value })} />
