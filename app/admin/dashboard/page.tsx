@@ -1,58 +1,89 @@
+import { Rocket, Mail, LifeBuoy, Shield, Activity, Globe, Cpu } from "lucide-react";
+
 export default function AdminDashboard() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 p-12 font-sans">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-20">
-                    <header className="mb-4">
-                        <span className="px-6 py-2 bg-emerald-100 text-emerald-800 rounded-full text-xs font-black uppercase tracking-[0.3em] border border-emerald-200">
-                            Authorized Superadmin Session
-                        </span>
-                    </header>
-                    <h1 className="text-8xl font-black bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 tracking-tighter">
-                        🎉 MASTER CONTROL
-                    </h1>
-                    <p className="text-2xl text-gray-400 font-bold uppercase tracking-[0.2em] italic">Resonate Global Infrastructure</p>
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* Hero Section */}
+            <header className="relative p-12 bg-slate-900 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl group">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-blue-500/5 to-transparent opacity-50"></div>
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="space-y-4 text-center md:text-left">
+                        <div className="inline-block px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.4em] rounded-full">
+                            System Authorization: L5-SUPERADMIN
+                        </div>
+                        <h1 className="text-6xl font-black text-white tracking-tighter">
+                            OPERATIONS CENTER
+                        </h1>
+                        <p className="text-slate-400 text-lg font-medium max-w-xl">
+                            Welcome to the primary control interface for the Resonate High-Availability Cluster.
+                        </p>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl text-center min-w-[140px]">
+                            <p className="text-emerald-400 font-black text-2xl">99.9%</p>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Uptime</p>
+                        </div>
+                        <div className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl text-center min-w-[140px]">
+                            <p className="text-blue-400 font-black text-2xl">2.4ms</p>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Latency</p>
+                        </div>
+                    </div>
                 </div>
+            </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    <a href="/admin/marketing" className="group p-12 bg-white/80 backdrop-blur-2xl rounded-[3rem] border-4 border-emerald-100 hover:border-emerald-500 shadow-xl hover:shadow-4xl transform hover:-translate-y-8 transition-all duration-700">
-                        <div className="w-28 h-28 bg-emerald-500 rounded-[2rem] flex items-center justify-center mx-auto mb-8 group-hover:rotate-[15deg] transition-all duration-500 shadow-lg shadow-emerald-200">
-                            <span className="text-4xl font-black text-white">🚀</span>
+            {/* Quick Access Modules */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[
+                    { name: "Marketing", href: "/admin/marketing", icon: <Rocket size={24} />, color: "emerald", desc: "AI Content Generation" },
+                    { name: "Outreach", href: "/admin/outreach", icon: <Mail size={24} />, color: "blue", desc: "Automated Engagement" },
+                    { name: "Support", href: "/admin/support", icon: <LifeBuoy size={24} />, color: "purple", desc: "Infrastructure Health" },
+                ].map((mod) => (
+                    <a
+                        key={mod.name}
+                        href={mod.href}
+                        className="group p-8 bg-white/60 backdrop-blur-xl border border-white/20 rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-500 hover:-translate-y-2"
+                    >
+                        <div className={`w-16 h-16 rounded-2xl bg-${mod.color}-500 flex items-center justify-center mb-6 text-white shadow-lg shadow-${mod.color}-500/20 group-hover:scale-110 transition-transform`}>
+                            {mod.icon}
                         </div>
-                        <h2 className="text-5xl font-black text-emerald-900 mb-4 text-center tracking-tight">Marketing</h2>
-                        <p className="text-xl text-gray-400 font-medium text-center group-hover:text-emerald-700 transition-colors leading-relaxed">AI Content Generation • Campaign Management • Performance Analytics</p>
+                        <h3 className="text-2xl font-black text-slate-800 mb-2">{mod.name}</h3>
+                        <p className="text-slate-500 font-medium text-sm leading-relaxed">{mod.desc}</p>
                     </a>
+                ))}
+            </div>
 
-                    <a href="/admin/outreach" className="group p-12 bg-white/80 backdrop-blur-2xl rounded-[3rem] border-4 border-blue-100 hover:border-blue-500 shadow-xl hover:shadow-4xl transform hover:-translate-y-8 transition-all duration-700">
-                        <div className="w-28 h-28 bg-blue-500 rounded-[2rem] flex items-center justify-center mx-auto mb-8 group-hover:rotate-[-15deg] transition-all duration-500 shadow-lg shadow-blue-200">
-                            <span className="text-4xl font-black text-white">📧</span>
-                        </div>
-                        <h2 className="text-5xl font-black text-blue-900 mb-4 text-center tracking-tight">Outreach</h2>
-                        <p className="text-xl text-gray-400 font-medium text-center group-hover:text-blue-700 transition-colors leading-relaxed">LinkedIn Automation • Multi-channel Engagement • Smart Prospecting</p>
-                    </a>
-
-                    <a href="/admin/support" className="group p-12 bg-white/80 backdrop-blur-2xl rounded-[3rem] border-4 border-purple-100 hover:border-purple-500 shadow-xl hover:shadow-4xl transform hover:-translate-y-8 transition-all duration-700">
-                        <div className="w-28 h-28 bg-purple-500 rounded-[2rem] flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-all duration-500 shadow-lg shadow-purple-200">
-                            <span className="text-4xl font-black text-white">🛠️</span>
-                        </div>
-                        <h2 className="text-5xl font-black text-purple-900 mb-4 text-center tracking-tight">Support</h2>
-                        <p className="text-xl text-gray-400 font-medium text-center group-hover:text-purple-700 transition-colors leading-relaxed">Ticket Infrastructure • AI Support Agents • Knowledge Base Management</p>
-                    </a>
-                </div>
-
-                <div className="mt-24 p-12 bg-white/50 backdrop-blur-md border-4 border-emerald-400/30 rounded-[3rem] text-center shadow-lg">
-                    <h3 className="text-2xl font-black text-gray-800 mb-8 uppercase tracking-[0.2em]">Deployment Integrity Status</h3>
-                    <div className="flex flex-wrap justify-center gap-12 text-sm font-black text-emerald-600 uppercase tracking-widest">
-                        <div className="flex items-center gap-3"><span className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span> Core Engines: OK</div>
-                        <div className="flex items-center gap-3"><span className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span> Auth Bypass: ACTIVE</div>
-                        <div className="flex items-center gap-3"><span className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span> Prod Sync: VERIFIED</div>
+            {/* Infrastructure Monitor */}
+            <div className="p-10 bg-white/40 backdrop-blur-2xl border border-white/20 rounded-[3rem] shadow-xl">
+                <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-xl font-black text-slate-800 uppercase tracking-widest flex items-center gap-3">
+                        <Activity className="text-emerald-500" /> Infrastructure Pulse
+                    </h3>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full animate-pulse">
+                        LIVE MONITORING ACTIVE
                     </div>
                 </div>
 
-                <footer className="mt-16 text-center text-gray-300 font-black text-[10px] uppercase tracking-[0.6em] pb-8">
-                    Resonate High-Availability Production Cluster
-                </footer>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {[
+                        { label: "Global Traffic", value: "Verified", icon: <Globe size={18} /> },
+                        { label: "AI Cluster", value: "Stable", icon: <Cpu size={18} /> },
+                        { label: "Prisma Layer", value: "Connected", icon: <Activity size={18} /> },
+                        { label: "Auth Mesh", value: "Locked", icon: <Shield size={18} /> },
+                    ].map((stat, i) => (
+                        <div key={i} className="space-y-2">
+                            <div className="flex items-center gap-2 text-slate-400">
+                                {stat.icon}
+                                <span className="text-[10px] font-bold uppercase tracking-widest">{stat.label}</span>
+                            </div>
+                            <p className="text-xl font-black text-slate-800">{stat.value}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
+
+            <footer className="text-center text-slate-300 font-black text-[9px] uppercase tracking-[0.8em] pt-12">
+                Resonate Security Cluster Identity Utility
+            </footer>
         </div>
     );
 }

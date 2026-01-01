@@ -23,7 +23,9 @@ export async function publishPost(postId: string) {
         return post;
     }
 
-    const webhookUrl = process.env.SOCIAL_POST_WEBHOOK_URL;
+    const settings = await prisma.marketingSettings.findFirst();
+    const automation = settings?.automationConfig ? JSON.parse(settings.automationConfig) : {};
+    const webhookUrl = automation.webhookUrl || process.env.SOCIAL_POST_WEBHOOK_URL;
 
     try {
         const isManualPlatform = ["reddit", "youtube_script", "youtube"].includes(post.platform);

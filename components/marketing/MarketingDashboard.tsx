@@ -7,8 +7,7 @@ import {
     FileText, User, Globe, Hash, Monitor, Youtube,
     PenTool, Calendar, Send, MoreHorizontal
 } from "lucide-react";
-import { generateMarketingPosts } from "@/services/marketing/generator";
-import { generateMarketingArticle } from "@/services/marketing/articleGenerator";
+// Imports removed (handled by API routes)
 
 type Settings = {
     productName: string;
