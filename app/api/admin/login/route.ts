@@ -1,61 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-const VALID_EMAIL = 'resonate.admin8153@protonmail.com';
-const HARDCODED_OTP = '123456'; // 100% BYPASS
+import { sendEmail } from '@/lib/email';
+import { sign } from '@/lib/security/jwt';
 
 export async function POST(req: NextRequest) {
     try {
         const { email } = await req.json();
-        const cleanEmail = email?.toLowerCase().trim();
 
-        console.log('🔍 LOGIN DEBUG:', {
-            received: cleanEmail,
-            expected: VALID_EMAIL,
-            smtpHost: process.env.SMTP_HOST || '🚨 MISSING',
-            smtpUser: process.env.SMTP_USER || '🚨 MISSING',
-            smtpPass: process.env.SMTP_PASS ? `${process.env.SMTP_PASS.length} chars ✓` : '🚨 MISSING',
-        });
-
-        // VALIDATE EMAIL
-        if (cleanEmail !== VALID_EMAIL) {
-            return NextResponse.json({
-                error: `❌ Use EXACTLY: ${VALID_EMAIL}`,
-                received: cleanEmail
-            }, { status: 403 });
+        // Only super-admin allowed
+        const superAdmin = 'resonate.admin8153@protonmail.com';
+        if (email !== superAdmin) {
+            console.warn(`🚫 Unauthorized login attempt for: ${email}`);
+            return NextResponse.json({ error: 'Invalid admin email' }, { status: 403 });
         }
 
-        // HARDCODE OTP (WORKS EVEN IF SMTP FAILS)
-        const cookieStore = await cookies();
-        cookieStore.set('admin_otp', HARDCODED_OTP, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 3600, // 1 hour
-            path: '/'
-        });
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // SMTP ATTEMPT (non-blocking)
         try {
-            const { sendEmail } = await import('@/lib/email');
+            console.log(`📧 Sending OTP to ${email}...`);
             await sendEmail({
-                to: VALID_EMAIL,
-                subject: '🔐 Resonate Admin Code: 123456',
-                html: `<h1 style="font-size: 64px; color: #10b981;">123456</h1>`,
+                to: email,
+                subject: '🔐 Resonate Admin Login Code',
+                html: `
+          <h1>Your Admin Login Code</h1>
+          <p><strong>${otp}</strong></p>
+          <p>This code expires in 10 minutes.</p>
+        `,
             });
-        } catch (smtpError: any) {
-            console.log('⚠️ SMTP FAILED (using hardcoded OTP):', smtpError.message);
+
+            // Create Context Token (Stateless OTP)
+            const encoder = new TextEncoder();
+            const data = encoder.encode(otp);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const otpHash = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+
+            const token = await sign({
+                email,
+                otpHash,
+                exp: Date.now() + 10 * 60 * 1000 // 10 mins
+            }, process.env.ADMIN_OTP_SECRET || "default-secret");
+
+            console.log('✅ OTP sent to super-admin:', email);
+
+            const res = NextResponse.json({ success: true, otpSent: true });
+            res.cookies.set("resonate_admin_otp_context", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                path: "/",
+                maxAge: 600 // 10 mins
+            });
+
+            return res;
+        } catch (error: any) {
+            console.error('🔴 SMTP ERROR in Login:', error.message);
+            return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 });
         }
-
-        return NextResponse.json({
-            success: true,
-            message: '✅ Use code: 123456 (ProtonMail or direct)',
-            smtpStatus: process.env.SMTP_PASS ? 'Configured' : '🚨 Add SMTP_PASS in Vercel Dashboard',
-            vercelFix: 'https://vercel.com/matricphase-dot/resonateadmin/settings/env-vars'
-        });
-
     } catch (error: any) {
-        console.error('🔴 LOGIN CRITICAL ERROR:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

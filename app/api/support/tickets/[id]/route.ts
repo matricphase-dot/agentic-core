@@ -1,9 +1,13 @@
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/lib/security/authz';
+import { getCurrentAdmin } from '@/lib/adminAuth';
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-    await requireAdmin();
+    if (!await getCurrentAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Await params as per Next.js 15+ convention (though this is 14/15 compatible style usually, 
+    // seeing 'Promise' type in context suggests newer Next.js or just safe typing)
     const { id } = await context.params;
 
     const ticket = await prisma.supportTicket.findUnique({
@@ -20,8 +24,11 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     return NextResponse.json(ticket);
 }
 
+// Update Status/Priority
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
-    const admin = await requireAdmin();
+    const admin = await getCurrentAdmin();
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await context.params;
     const { status, priority } = await request.json();
 

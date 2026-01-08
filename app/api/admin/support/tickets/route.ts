@@ -1,45 +1,27 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/security/authz';
-import { sendEmail } from '@/lib/email';
-import { z } from 'zod';
 
-export async function GET(request: Request) {
-    const admin = await requireAdmin();
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const priority = searchParams.get('priority');
-
-    const where: any = {};
-    if (status && status !== 'all') where.status = status;
-    if (priority && priority !== 'all') where.priority = priority;
-
+export async function GET(req: NextRequest) {
+  await requireAdmin();
     try {
+        const searchParams = req.nextUrl.searchParams;
+        const status = searchParams.get('status') || undefined;
+
         const tickets = await prisma.supportTicket.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            select: {
-                id: true,
-                email: true,
-                subject: true,
-                status: true,
-                priority: true,
-                createdAt: true,
-                updatedAt: true,
-            }
+            where: {
+                status: status
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: 50 // temp limit
         });
+
         return NextResponse.json(tickets);
-    } catch (error) {
-        console.error("Error fetching tickets:", error);
-        return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-export async function POST(request: Request) {
-    // Admin manually creating a ticket or similar
-    const admin = await requireAdmin();
-    const body = await request.json();
-    const ticket = await prisma.supportTicket.create({ data: { ...body, status: 'open' } });
-    return NextResponse.json(ticket);
-}

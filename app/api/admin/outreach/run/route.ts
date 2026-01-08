@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/security/authz';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendEmailTemplate } from '@/lib/email';
@@ -15,7 +16,9 @@ function generateUnsubscribeLink(leadId: string) {
 }
 
 export async function GET(req: NextRequest) {
-    await requireAdmin();
+  await requireAdmin();
+    // Basic security guard (optional: add API key or admin check)
+    // For Vercel Cron, you might check authorization header
 
     try {
         const now = new Date();
@@ -55,6 +58,8 @@ export async function GET(req: NextRequest) {
             }
 
             try {
+                // Rate limit check (optional implementation here, skipping for simplicity as per requirements)
+
                 const unsubscribeLink = generateUnsubscribeLink(lead.id);
 
                 const variables = {
@@ -65,8 +70,8 @@ export async function GET(req: NextRequest) {
                     unsubscribe_link: unsubscribeLink
                 };
 
-                // Send Email (throws on failure)
-                await sendEmailTemplate({
+                // Send Email
+                const sendResult = await sendEmailTemplate({
                     to: lead.email,
                     subjectTemplate: step.subjectTemplate,
                     htmlTemplate: step.bodyTemplateHtml,
@@ -74,14 +79,18 @@ export async function GET(req: NextRequest) {
                     variables
                 });
 
-                await prisma.outreachEvent.update({
-                    where: { id: event.id },
-                    data: {
-                        eventType: 'sent',
-                        sentAt: new Date()
-                    }
-                });
-                results.push({ id: event.id, status: 'sent' });
+                if (sendResult.success) {
+                    await prisma.outreachEvent.update({
+                        where: { id: event.id },
+                        data: {
+                            eventType: 'sent',
+                            sentAt: new Date()
+                        }
+                    });
+                    results.push({ id: event.id, status: 'sent' });
+                } else {
+                    throw new Error(sendResult.error);
+                }
 
             } catch (error: any) {
                 await prisma.outreachEvent.update({
@@ -102,3 +111,4 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

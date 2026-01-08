@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
         await requireAdmin();
         const settings = await prisma.marketingSettings.findFirst();
         return NextResponse.json(settings || {});
-    } catch (err) {
+    } catch (error) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 }
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
         await requireAdmin();
         const body = await req.json();
 
+        // Upsert settings (there should ideally be only one row)
         const existing = await prisma.marketingSettings.findFirst();
 
         let settings;
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
                     brandVoice: body.brandVoice,
                     primaryWebsiteUrl: body.primaryWebsiteUrl,
                     enabledPlatforms: body.enabledPlatforms,
-                    postsPerDay: parseInt(body.postsPerDay) || 1,
+                    postsPerDay: parseInt(body.postsPerDay),
                     timeZone: body.timeZone,
                     automationConfig: body.automationConfig,
                 },
@@ -45,16 +46,16 @@ export async function POST(req: NextRequest) {
                     targetAudience: body.targetAudience,
                     brandVoice: body.brandVoice,
                     primaryWebsiteUrl: body.primaryWebsiteUrl,
-                    enabledPlatforms: body.enabledPlatforms || "[]",
-                    postsPerDay: parseInt(body.postsPerDay) || 1,
-                    timeZone: body.timeZone || "UTC",
-                    automationConfig: body.automationConfig || "{}",
+                    enabledPlatforms: body.enabledPlatforms,
+                    postsPerDay: parseInt(body.postsPerDay),
+                    timeZone: body.timeZone,
+                    automationConfig: body.automationConfig,
                 },
             });
         }
 
         return NextResponse.json(settings);
-    } catch (err) {
+    } catch (error) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 }

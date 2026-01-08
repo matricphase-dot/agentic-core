@@ -1,10 +1,11 @@
 import { requireAdmin } from '@/lib/security/authz';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
 import { getCurrentAdmin } from '@/lib/adminAuth';
 
 export async function POST(req: NextRequest) {
-    await requireAdmin();
+  await requireAdmin();
     try {
         const admin = await getCurrentAdmin();
         if (!admin) {
@@ -12,6 +13,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { email } = await req.json(); // Admin can specify email or default to their own
+
         const targetEmail = email || admin.email;
 
         const result = await sendEmail({
@@ -20,9 +22,14 @@ export async function POST(req: NextRequest) {
             html: "<h1>It Works!</h1><p>This is a test email sent from the Resonate Admin Dashboard via Zoho Mail.</p>"
         });
 
-        return NextResponse.json({ message: `Sent to ${targetEmail}`, ...result });
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        return NextResponse.json({ success: true, message: `Sent to ${targetEmail}` });
 
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

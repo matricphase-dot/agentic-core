@@ -1,73 +1,147 @@
-
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus, Mail, Trash2 } from "lucide-react";
+import { Loader2, Plus, Mail, Trash2, Users, Calendar, BarChart2, Search } from "lucide-react";
+import styles from "./Outreach.module.css";
 
 export default function OutreachDashboard() {
     const [activeTab, setActiveTab] = useState("leads");
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold mb-6">Outreach Engine</h1>
+        <div className={styles.outreach}>
+            <header className={styles.header}>
+                <h1 className={styles.title}>Outreach Control</h1>
+                <p className={styles.subtitle}>Manage automated LinkedIn and Email sequences.</p>
+            </header>
 
-            <div className="flex gap-4 mb-6 border-b pb-2">
-                <button
-                    className={`px-4 py-2 ${activeTab === "leads" ? "border-b-2 border-blue-500 font-bold" : ""}`}
-                    onClick={() => setActiveTab("leads")}
-                >
-                    Leads
-                </button>
-                <button
-                    className={`px-4 py-2 ${activeTab === "sequences" ? "border-b-2 border-blue-500 font-bold" : ""}`}
-                    onClick={() => setActiveTab("sequences")}
-                >
-                    Sequences
-                </button>
-                <button
-                    className={`px-4 py-2 ${activeTab === "events" ? "border-b-2 border-blue-500 font-bold" : ""}`}
-                    onClick={() => setActiveTab("events")}
-                >
-                    Event Log
-                </button>
+            <div className={styles.tabsContainer}>
+                <div className={styles.tabList}>
+                    <button
+                        className={`${styles.tab} ${activeTab === "leads" ? styles.activeTab : ""}`}
+                        onClick={() => setActiveTab("leads")}
+                    >
+                        Leads Database
+                    </button>
+                    <button
+                        className={`${styles.tab} ${activeTab === "sequences" ? styles.activeTab : ""}`}
+                        onClick={() => setActiveTab("sequences")}
+                    >
+                        Active Sequences
+                    </button>
+                    <button
+                        className={`${styles.tab} ${activeTab === "events" ? styles.activeTab : ""}`}
+                        onClick={() => setActiveTab("events")}
+                    >
+                        Automation Log
+                    </button>
+                </div>
             </div>
 
-            {activeTab === "leads" && <LeadsTable />}
-            {activeTab === "sequences" && <SequencesList />}
-            {activeTab === "events" && <EventsLog />}
+            <div className={styles.content}>
+                {activeTab === "leads" && <LeadsTable />}
+                {activeTab === "sequences" && <SequencesList />}
+                {activeTab === "events" && <EventsLog />}
+            </div>
         </div>
     );
 }
 
 function LeadsTable() {
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Leads</h2>
-            <p className="text-gray-500">List of leads will appear here (fetch from /api/outreach/leads)</p>
-            {/* Implementation of table fetching from API would go here */}
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Prospects & Leads</h2>
+                <div className="flex gap-2">
+                    <button className={styles.btn} style={{ border: '1px solid var(--card-border)', padding: '0.5rem' }}>
+                        <Search size={18} />
+                    </button>
+                    <button className={`${styles.btn} ${styles.btnPrimary}`}>
+                        <Plus size={16} /> Import Leads
+                    </button>
+                </div>
+            </div>
+            <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}><Users size={24} /></div>
+                <p className={styles.emptyText}>No leads found in the database. Start by importing a CSV or connecting your CRM.</p>
+            </div>
         </div>
     );
 }
 
 function SequencesList() {
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Active Sequences</h2>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2">
-                    <Plus size={16} /> New Sequence
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Workflow Automations</h2>
+                <button className={`${styles.btn} ${styles.btnPrimary}`}>
+                    <Plus size={16} /> Create Sequence
                 </button>
             </div>
-            <p className="text-gray-500">Sequences configuration (fetch from /api/outreach/sequences)</p>
+            <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th>Sequence Name</th>
+                            <th>Status</th>
+                            <th>Enrolled</th>
+                            <th>Last Run</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td className="font-medium">Onboarding Nurture</td>
+                            <td><span className={`${styles.badge} ${styles.badgeSuccess}`}>Active</span></td>
+                            <td>1,240</td>
+                            <td>2 hours ago</td>
+                            <td><button className="text-slate-400 hover:text-slate-600">Edit</button></td>
+                        </tr>
+                        <tr>
+                            <td className="font-medium">Cold Outreach #1</td>
+                            <td><span className={`${styles.badge}`} style={{ backgroundColor: '#f1f5f9' }}>Draft</span></td>
+                            <td>0</td>
+                            <td>-</td>
+                            <td><button className="text-slate-400 hover:text-slate-600">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
 
 function EventsLog() {
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <p className="text-gray-500">Email sending logs (fetch from /api/outreach/events)</p>
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Recent Events</h2>
+            </div>
+            <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Recipient</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td className="flex items-center gap-2"><Mail size={14} className="text-indigo-500" /> Email Sent</td>
+                            <td>john@example.com</td>
+                            <td><span className={`${styles.badge} ${styles.badgeSuccess}`}>Delivered</span></td>
+                            <td>10:45 AM</td>
+                        </tr>
+                        <tr>
+                            <td className="flex items-center gap-2"><Calendar size={14} className="text-orange-500" /> Call Scheduled</td>
+                            <td>sarah.m@retail.co</td>
+                            <td><span className={`${styles.badge} ${styles.badgeInfo}`}>Confirmed</span></td>
+                            <td>9:12 AM</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

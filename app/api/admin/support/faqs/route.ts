@@ -1,42 +1,61 @@
+import { requireAdmin } from '@/lib/security/authz';
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/lib/security/authz';
+import { getCurrentAdmin } from '@/lib/adminAuth';
 import { z } from 'zod';
 
 export async function GET() {
   await requireAdmin();
-  const faqs = await prisma.supportFAQ.findMany({ orderBy: { createdAt: 'asc' } });
-  return NextResponse.json(faqs);
+    if (!await getCurrentAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const faqs = await prisma.supportFAQ.findMany({ orderBy: { createdAt: 'desc' } });
+    return NextResponse.json(faqs);
 }
 
 export async function POST(request: Request) {
   await requireAdmin();
-  const body = await request.json();
-  const schema = z.object({
-    question: z.string().min(1),
-    answer: z.string().min(1),
-    category: z.string().optional(),
-  });
+    if (!await getCurrentAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const validation = schema.safeParse(body);
-  if (!validation.success) return NextResponse.json({ error: validation.error }, { status: 400 });
+    const body = await request.json();
+    const schema = z.object({
+        question: z.string().min(1),
+        answerMarkdown: z.string().min(1),
+        category: z.string().optional(),
+        isPublished: z.boolean().optional(),
+    });
 
-  const faq = await prisma.supportFAQ.create({
-    data: {
-      question: validation.data.question,
-      answerMarkdown: validation.data.answer,
-      category: validation.data.category || 'general'
-    }
-  });
-  return NextResponse.json(faq);
+    const validation = schema.safeParse(body);
+    if (!validation.success) return NextResponse.json({ error: validation.error }, { status: 400 });
+
+    const item = await prisma.supportFAQ.create({ data: validation.data });
+    return NextResponse.json(item);
+}
+
+export async function PUT(request: Request) {
+  await requireAdmin();
+    if (!await getCurrentAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = await request.json();
+    const { id, ...data } = body;
+
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    const item = await prisma.supportFAQ.update({
+        where: { id },
+        data
+    });
+    return NextResponse.json(item);
 }
 
 export async function DELETE(request: Request) {
   await requireAdmin();
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-  if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!await getCurrentAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await prisma.supportFAQ.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    await prisma.supportFAQ.delete({ where: { id } });
+    return NextResponse.json({ success: true });
 }
+
